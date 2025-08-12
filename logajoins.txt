@@ -1,0 +1,184 @@
+Joins 
+1. Employees Table
+CREATE TABLE Employees (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    department_id INT,
+    salary INT
+);
+
+INSERT INTO Employees (emp_id, name, department_id, salary) VALUES
+(1, 'Alice', 101, 60000),
+(2, 'Bob', 102, 55000),
+(3, 'Charlie', 101, 70000),
+(4, 'David', 103, 48000),
+(5, 'Eve', NULL, 75000),
+(6, 'Frank', 104, 52000),
+(7, 'Grace', 102, 58000),
+(8, 'Hannah', NULL, 62000);
+________________________________________
+🧱 2. Departments Table
+CREATE TABLE Departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    location VARCHAR(50)
+);
+
+INSERT INTO Departments (department_id, department_name, location) VALUES
+(101, 'HR', 'New York'),
+(102, 'IT', 'San Francisco'),
+(103, 'Finance', 'Chicago'),
+(104, 'Sales', 'Boston'),
+(105, 'Marketing', 'Los Angeles');
+________________________________________
+🔍 20 Hands-on SQL JOIN Questions
+________________________________________
+🔹 INNER JOIN
+1.	List all employees along with their department names.
+mysql> select employees.name,departments.department_name from employees inner join departments on employees.department_id= departments.department_id;
++---------+-----------------+
+| name    | department_name |
++---------+-----------------+
+| Alice   | HR              |
+| Bob     | IT              |
+| Charlie | HR              |
+| David   | Finance         |
+| Frank   | Sales           |
+| Grace   | IT              |
++---------+-----------------+
+2.	Show the names of employees who work in the IT department.
+mysql> select employees.name
+    -> from employees
+    -> inner join departments
+    -> on employees.department_id =departments.department_id where departments.department_name='it';
++-------+
+| name  |
++-------+
+| Bob   |
+| Grace |
++-------+
+3.	Get the names and locations of departments where at least one employee works.
+mysql> select employees.name, departments.location from employees inner join departments on employees.department_id= departments.department_id where departments.location>=1;
+Empty set, 5 warnings (0.01 sec)
+4.	Find employees who work in the same location as the 'HR' department.
+mysql> select employees.name from employees inner join departments on employees.department_id=departments.department_id where departments.location =(select location from departments where department_name='hr');
++---------+
+| name    |
++---------+
+| Alice   |
+| Charlie |
++---------+
+5.	List department names and employee count (only departments with employees).
+mysql> SELECT d.department_name, COUNT(e.emp_id) AS employee_count
+    -> FROM Departments d
+    -> INNER JOIN Employees e
+    ->     ON e.department_id = d.department_id
+    -> GROUP BY d.department_name;
++-----------------+----------------+
+| department_name | employee_count |
++-----------------+----------------+
+| HR              |              2 |
+| IT              |              2 |
+| Finance         |              1 |
+| Sales           |              1 |
++-----------------+----------------+
+________________________________________
+🔹 LEFT JOIN
+6.	List all employees and their departments (even if they don’t belong to any department).
+mysql> SELECT e.name, d.department_name
+    -> FROM Employees e
+    -> LEFT JOIN Departments d
+    ->     ON e.department_id = d.department_id;
++---------+-----------------+
+| name    | department_name |
++---------+-----------------+
+| Alice   | HR              |
+| Bob     | IT              |
+| Charlie | HR              |
+| David   | Finance         |
+| Eve     | NULL            |
+| Frank   | Sales           |
+| Grace   | IT              |
+| Hannah  | NULL            |
++---------+-----------------+
+7.	Find employees who are not assigned to any department.
+mysql> SELECT e.name
+    -> FROM Employees e
+    -> LEFT JOIN Departments d
+    ->     ON e.department_id = d.department_id
+    -> WHERE d.department_id IS NULL;
++--------+
+| name   |
++--------+
+| Eve    |
+| Hannah |
++--------+
+8.	List all departments and the names of employees working in them (include departments without employees).
+mysql> SELECT d.department_name, e.name
+    -> FROM Departments d
+    -> LEFT JOIN Employees e
+    ->     ON d.department_id = e.department_id;
++-----------------+---------+
+| department_name | name    |
++-----------------+---------+
+| HR              | Charlie |
+| HR              | Alice   |
+| IT              | Grace   |
+| IT              | Bob     |
+| Finance         | David   |
+| Sales           | Frank   |
+| Marketing       | NULL    |
++-----------------+---------+
+9.	Show employee names and department names, replacing NULLs with 'Unassigned'.
+10.	Find departments where no employees are assigned.
+mysql> SELECT d.department_name
+    -> FROM Departments d
+    -> LEFT JOIN Employees e
+    ->     ON d.department_id = e.department_id
+    -> WHERE e.emp_id IS NULL;
++-----------------+
+| department_name |
++-----------------+
+| Marketing       |
++-----------------+
+________________________________________
+🔹 RIGHT JOIN (use LEFT JOIN with reversed tables if using SQLite/MySQL)
+11.	Show all departments and the employees working in them (even if no employees).
+(Use RIGHT JOIN or flip the LEFT JOIN if not supported)
+mysql> SELECT d.department_name, e.name
+    -> FROM Departments d
+    -> LEFT JOIN Employees e
+    ->     ON d.department_id = e.department_id;
++-----------------+---------+
+| department_name | name    |
++-----------------+---------+
+| HR              | Charlie |
+| HR              | Alice   |
+| IT              | Grace   |
+| IT              | Bob     |
+| Finance         | David   |
+| Sales           | Frank   |
+| Marketing       | NULL    |
++-----------------+---------+
+12.	List all employees and their department locations.
+mysql> SELECT e.name, d.location
+    -> FROM Employees e
+    -> right JOIN Departments d
+    ->     ON e.department_id = d.department_id;
++---------+---------------+
+| name    | location      |
++---------+---------------+
+| Charlie | New York      |
+| Alice   | New York      |
+| Grace   | San Francisco |
+| Bob     | San Francisco |
+| David   | Chicago       |
+| Frank   | Boston        |
+| NULL    | Los Angeles   |
++---------+---------------+
+7 rows in set (0.00 sec)
+
+
+________________________________________
+
+
