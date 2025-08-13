@@ -1,0 +1,331 @@
+JOINS – PRODUCT AND SALES
+✅ 1. Create the Tables
+CREATE TABLE Product (
+    ProductID INT PRIMARY KEY,
+    ProductName VARCHAR(100),
+    Price DECIMAL(10, 2)
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    ProductID INT,
+    Quantity INT,
+    OrderDate DATE,
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
+
+✅ 2. Insert Sample Data
+-- Products
+INSERT INTO Product (ProductID, ProductName, Price) VALUES
+(1, 'Laptop', 1000.00),
+(2, 'Mouse', 25.00),
+(3, 'Keyboard', 45.00),
+(4, 'Monitor', 150.00),
+(5, 'Webcam', 75.00);
+
+-- Orders
+INSERT INTO Orders (OrderID, ProductID, Quantity, OrderDate) VALUES
+(101, 1, 2, '2025-08-01'),
+(102, 2, 5, '2025-08-02'),
+(103, 3, 3, '2025-08-03'),
+(104, 1, 1, '2025-08-04'),
+(105, 4, 2, '2025-08-04'),
+(106, 5, 4, '2025-08-05');
+
+✅ 3. JOIN-Based Hands-On Questions
+🔹 Q1. List all orders with product names and prices.
+select  Orders.OrderID, Product.ProductName,   Product.Price, Orders.Quantity,  Orders.OrderDate
+from  Orders join Product on Orders.ProductID = Product.ProductID;
++---------+-------------+---------+----------+------------+
+| OrderID | ProductName | Price   | Quantity | OrderDate  |
++---------+-------------+---------+----------+------------+
+|     101 | Laptop      | 1000.00 |        2 | 2025-08-01 |
+|     104 | Laptop      | 1000.00 |        1 | 2025-08-04 |
+|     102 | Mouse       |   25.00 |        5 | 2025-08-02 |
+|     103 | Keyboard    |   45.00 |        3 | 2025-08-03 |
+|     105 | Monitor     |  150.00 |        2 | 2025-08-04 |
+|     106 | Webcam      |   75.00 |        4 | 2025-08-05 |
++---------+-------------+---------+----------+------------+
+
+
+
+🔹 Q2. Show total amount for each order (price × quantity).
+select   Orders.OrderID, Product.ProductName, Product.Price,Orders.Quantity,  (Product.Price * Orders.Quantity) as TotalAmount from Orders join Product on  Orders.ProductID = Product.ProductID;
++---------+-------------+---------+----------+-------------+
+| OrderID | ProductName | Price   | Quantity | TotalAmount |
++---------+-------------+---------+----------+-------------+
+|     101 | Laptop      | 1000.00 |        2 |     2000.00 |
+|     104 | Laptop      | 1000.00 |        1 |     1000.00 |
+|     102 | Mouse       |   25.00 |        5 |      125.00 |
+|     103 | Keyboard    |   45.00 |        3 |      135.00 |
+|     105 | Monitor     |  150.00 |        2 |      300.00 |
+|     106 | Webcam      |   75.00 |        4 |      300.00 |
++---------+-------------+---------+----------+-------------+
+
+
+
+🔹 Q3. Find all products that were never ordered.
+select Product.ProductID,Product.ProductName,Product.Price from Product left join  Orders on Product.ProductID = Orders.ProductID where Orders.OrderID is null;
+
+
+
+🔹 Q4. Get the total quantity sold per product.
+select   Product.ProductName,  sum(Orders.Quantity) as TotalQuantitySold as Orders join Product on Orders.ProductID = Product.ProductID  group by Product.ProductName;
+ctID = Product.ProductID  group by Product.ProductName;
++-------------+-------------------+
+| ProductName | TotalQuantitySold |
++-------------+-------------------+
+| Laptop      |                 3 |
+| Mouse       |                 5 |
+| Keyboard    |                 3 |
+| Monitor     |                 2 |
+| Webcam      |                 4 |
++-------------+-------------------+
+
+
+
+🔹 Q5. Find the most recent order for each produc
+select Product.ProductName, max(Orders.OrderDate) as MostRecentOrderDate from Orders join  Product on Orders.ProductID = Product.ProductID group by Product.ProductName;
++-------------+---------------------+
+| ProductName | MostRecentOrderDate |
++-------------+---------------------+
+| Laptop      | 2025-08-04          |
+| Mouse       | 2025-08-02          |
+| Keyboard    | 2025-08-03          |
+| Monitor     | 2025-08-04          |
+| Webcam      | 2025-08-05          |
++-------------+---------------------+
+
+
+
+20 SQL JOIN-Based Questions
+🔹 1–5: Basic INNER JOIN Use
+List all orders with product names and prices.
+select Orders.OrderID, Product.ProductName,  Product.Price from Orders inner join Product on  Orders.ProductID = Product.ProductID;
++---------+-------------+---------+
+| OrderID | ProductName | Price   |
++---------+-------------+---------+
+|     101 | Laptop      | 1000.00 |
+|     104 | Laptop      | 1000.00 |
+|     102 | Mouse       |   25.00 |
+|     103 | Keyboard    |   45.00 |
+|     105 | Monitor     |  150.00 |
+|     106 | Webcam      |   75.00 |
++---------+-------------+---------+
+
+
+Display OrderID, ProductName, Quantity, and total cost (Quantity × Price).
++---------+-------------+----------+-----------+
+| OrderID | ProductName | Quantity | TotalCost |
++---------+-------------+----------+-----------+
+|     101 | Laptop      |        2 |   2000.00 |
+|     104 | Laptop      |        1 |   1000.00 |
+|     102 | Mouse       |        5 |    125.00 |
+|     103 | Keyboard    |        3 |    135.00 |
+|     105 | Monitor     |        2 |    300.00 |
+|     106 | Webcam      |        4 |    300.00 |
++---------+-------------+----------+-----------+
+
+
+List all orders placed on or after '2025-08-03' with product details.
+select   Orders.OrderID,Orders.OrderDate, Product.ProductName,Product.Price,  Orders.Quantity from Orders inner join Product  onOrders.ProductID = Product.ProductID where Orders.OrderDate >= '2025-08-03';
++---------+------------+-------------+---------+----------+
+| OrderID | OrderDate  | ProductName | Price   | Quantity |
++---------+------------+-------------+---------+----------+
+|     103 | 2025-08-03 | Keyboard    |   45.00 |        3 |
+|     104 | 2025-08-04 | Laptop      | 1000.00 |        1 |
+|     105 | 2025-08-04 | Monitor     |  150.00 |        2 |
+|     106 | 2025-08-05 | Webcam      |   75.00 |        4 |
++---------+------------+-------------+---------+----------+
+
+
+Show only those orders where the quantity ordered is more than 3.
+select Orders.OrderID,Product.ProductName,Orders.Quantity,  Product.Price from  Orders inner join Product  on Orders.ProductID = Product.ProductID where  Orders.Quantity > 3;
+
++---------+-------------+----------+-------+
+| OrderID | ProductName | Quantity | Price |
++---------+-------------+----------+-------+
+|     102 | Mouse       |        5 | 25.00 |
+|     106 | Webcam      |        4 | 75.00 |
++---------+-------------+----------+-------+
+
+List the products ordered along with their order date and price.
+select  Product.ProductName, Orders.OrderDate, Product.Price from Orders inner join Product on Orders.ProductID = Product.ProductID;
++-------------+------------+---------+
+| ProductName | OrderDate  | Price   |
++-------------+------------+---------+
+| Laptop      | 2025-08-01 | 1000.00 |
+| Laptop      | 2025-08-04 | 1000.00 |
+| Mouse       | 2025-08-02 |   25.00 |
+| Keyboard    | 2025-08-03 |   45.00 |
+| Monitor     | 2025-08-04 |  150.00 |
+| Webcam      | 2025-08-05 |   75.00 |
++-------------+------------+---------+
+
+
+
+🔹 6–10: Aggregations With JOINs
+Find total quantity sold for each product.
+select  Product.ProductName,sum (Orders.Quantity) AS TotalQuantitySold from Orders inner join  Product on Orders.ProductID = Product.ProductID group by Product.ProductName;
++-------------+-------------------+
+| ProductName | TotalQuantitySold |
++-------------+-------------------+
+| Laptop      |                 3 |
+| Mouse       |                 5 |
+| Keyboard    |                 3 |
+| Monitor     |                 2 |
+| Webcam      |                 4 |
++-------------+-------------------+
+
+
+Get total revenue for each product (Price × Quantity).
+select   Product.ProductName,sum(Product.Price * Orders.Quantity) as TotalRevenue from Orders inner join  Product on  Orders.ProductID = Product.ProductID group SELECT   
+  +-------------+--------------+
+| ProductName | TotalRevenue |
++-------------+--------------+
+| Laptop      |      3000.00 |
+| Mouse       |       125.00 |
+| Keyboard    |       135.00 |
+| Monitor     |       300.00 |
+| Webcam      |       300.00 |
++-------------+--------------+
+
+List all products along with the number of times they were ordered.
+select   Product.ProductName,  count (Orders.OrderID) as TimesOrdered from Orders  inner join  Product  on Orders.ProductID = Product.ProductID group by Product.ProductName;
+    -> GROUP BY Product.ProductName;
++-------------+--------------+
+| ProductName | TimesOrdered |
++-------------+--------------+
+| Laptop      |            2 |
+| Mouse       |            1 |
+| Keyboard    |            1 |
+| Monitor     |            1 |
+| Webcam      |            1 |
++-------------+--------------+
+
+
+Show average quantity per order for each product.
+select   Product.ProductName,avg(Orders.Quantity) as AvgQuantityPerOrder from Orders inner join Product on Orders.ProductID = Product.ProductID group by Product.ProductName;
++-------------+---------------------+
+| ProductName | AvgQuantityPerOrder |
++-------------+---------------------+
+| Laptop      |              1.5000 |
+| Mouse       |              5.0000 |
+| Keyboard    |              3.0000 |
+| Monitor     |              2.0000 |
+| Webcam      |              4.0000 |
++-------------+---------------------+
+
+
+Find the product with the highest revenue.
+select  Product.ProductName,sum(Product.Price * Orders.Quantity) as TotalRevenue from  Orders inner join  Product on  Orders.ProductID = Product.ProductID group by  Product.ProductName group by TotalRevenue desc limit 1;
++-------------+--------------+
+| ProductName | TotalRevenue |
++-------------+--------------+
+| Laptop      |      3000.00 |
++-------------+--------------+
+
+
+
+🔹 11–15: LEFT JOIN (Handling Missing Orders)
+List all products even if they have never been ordered.
+ select Product.ProductName,Product.Price,Orders.OrderID,Orders.Quantity from Product left join Orders on Product.ProductID = Orders.ProductID;
++-------------+---------+---------+----------+
+| ProductName | Price   | OrderID | Quantity |
++-------------+---------+---------+----------+
+| Laptop      | 1000.00 |     101 |        2 |
+| Laptop      | 1000.00 |     104 |        1 |
+| Mouse       |   25.00 |     102 |        5 |
+| Keyboard    |   45.00 |     103 |        3 |
+| Monitor     |  150.00 |     105 |        2 |
+| Webcam      |   75.00 |     106 |        4 |
++-------------+---------+---------+----------+
+6 rows in set (0.00 sec)
+
+Show product names and total quantity sold (0 if never ordered).
+ select Product.ProductName, ifnull(sum(Orders.Quantity), 0) as TotalQuantitySold from Product left join Orders on Product.ProductID = Orders.ProductID group by Product.ProductName;
++-------------+-------------------+
+| ProductName | TotalQuantitySold |
++-------------+-------------------+
+| Laptop      |                 3 |
+| Mouse       |                 5 |
+| Keyboard    |                 3 |
+| Monitor     |                 2 |
+| Webcam      |                 4 |
++-------------+-------------------+
+
+Find products that were never ordered.
+ select Product.ProductName from Product left join Orders on Product.ProductID = Orders.ProductID where Orders.OrderID is null;
+Empty set (0.00 sec)
+Display product names with number of orders and revenue (include 0s).
+ select  Product.ProductName,count(Orders.OrderID) as NumberOfOrders, ifnull(sum(Product.Price * Orders.Quantity), 0) as TotalRevenue from Product left join Orders on Product.ProductID = Orders.ProductID group by Product.ProductName;
++-------------+----------------+--------------+
+| ProductName | NumberOfOrders | TotalRevenue |
++-------------+----------------+--------------+
+| Laptop      |              2 |      3000.00 |
+| Mouse       |              1 |       125.00 |
+| Keyboard    |              1 |       135.00 |
+| Monitor     |              1 |       300.00 |
+| Webcam      |              1 |       300.00 |
++-------------+----------------+--------------+
+
+List all products and their most recent order date (if any).
+select  Product.ProductName,max(Orders.OrderDate) as MostRecentOrderDate from Product left join Orders on Product.ProductID = Orders.ProductID group by Product.ProductName;
++-------------+---------------------+
+| ProductName | MostRecentOrderDate |
++-------------+---------------------+
+| Laptop      | 2025-08-04          |
+| Mouse       | 2025-08-02          |
+| Keyboard    | 2025-08-03          |
+| Monitor     | 2025-08-04          |
+| Webcam      | 2025-08-05          |
++-------------+---------------------+
+
+
+🔹 16–20: Conditions and Filters With JOINs
+List all orders for products costing more than $100.
+ select  Orders.OrderID, Product.ProductName,Product.Price, Orders.Quantity from Orders inner join Product on Orders.ProductID = Product.ProductID where Product.Price > 100;
++---------+-------------+---------+----------+
+| OrderID | ProductName | Price   | Quantity |
++---------+-------------+---------+----------+
+|     101 | Laptop      | 1000.00 |        2 |
+|     104 | Laptop      | 1000.00 |        1 |
+|     105 | Monitor     |  150.00 |        2 |
++---------+-------------+---------+----------+
+
+Find orders where total cost exceeds $300.
+ select  Orders.OrderID, Product.ProductName, Orders.Quantity, (Product.Price * Orders.Quantity) as TotalCost from Orders  inner join Product on Orders.ProductID = Product.ProductID where (Product.Price * Orders.Quantity) > 300;
++---------+-------------+----------+-----------+
+| OrderID | ProductName | Quantity | TotalCost |
++---------+-------------+----------+-----------+
+|     101 | Laptop      |        2 |   2000.00 |
+|     104 | Laptop      |        1 |   1000.00 |
++---------+-------------+----------+-----------+
+
+Show all products that were ordered on '2025-08-04'.
+ select distinct Product.ProductName from Orders inner join Product on Orders.ProductID = Product.ProductID where Orders.OrderDate = '2025-08-04';
++-------------+
+| ProductName |
++-------------+
+| Laptop      |
+| Monitor     |
++-------------+
+
+List products that have been ordered more than once.
+ select  Product.ProductName,count(Orders.OrderID) as NumberOfOrders from Orders inner join Product  on Orders.ProductID = Product.ProductID  group by Product.ProductName having count(Orders.OrderID) > 1;
++-------------+----------------+
+| ProductName | NumberOfOrders |
++-------------+----------------+
+| Laptop      |              2 |
++-------------+----------------+
+
+List all products that were ordered less than 2 times or never ordered.
+select  Product.ProductName,COUNT(Orders.OrderID) as NumberOfOrders from Product  left join Orders on Product.ProductID = Orders.ProductID group by Product.ProductName having count(Orders.OrderID) < 2;
++-------------+----------------+
+| ProductName | NumberOfOrders |
++-------------+----------------+
+| Mouse       |              1 |
+| Keyboard    |              1 |
+| Monitor     |              1 |
+| Webcam      |              1 |
++-------------+----------------+
